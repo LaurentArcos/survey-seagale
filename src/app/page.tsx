@@ -98,6 +98,9 @@ export default function Home() {
       );
     }
 
+    // Calcul du nombre total de votes (après filtrage)
+    const totalVotes = filteredSurveys.length;
+
     // Si aucun sondage ne correspond aux filtres, on indique qu'il n'y a aucune donnée
     if (filteredSurveys.length === 0) {
       setEmptyData(true);
@@ -220,6 +223,8 @@ export default function Home() {
         },
       ],
     });
+
+    // On ajoute le totalVotes dans l'état ou on peut l'afficher directement
   }, [surveys, surveyAnswers, countries, selectedAnswer, breakdown]);
 
   const options = {
@@ -230,7 +235,7 @@ export default function Home() {
         position: "top" as const,
         labels: {
           font: {
-            size: 20, 
+            size: 20,
           },
         },
       },
@@ -271,6 +276,23 @@ export default function Home() {
         survey.autre_answer.trim() !== ""
     )
     .map((survey) => survey.autre_answer as string);
+
+  // 🔹 Calcul du total des votes (pour l'affichage à gauche)
+  const totalVotes = (() => {
+    // Si "emptyData" est true ou "selectedAnswer === '9'", on peut renvoyer 0,
+    // sinon on renvoie la taille du tableau filtré.
+    if (emptyData || selectedAnswer === "9") {
+      return 0;
+    }
+    // Sinon, on refiltre pour avoir le même "filteredSurveys" qu'au-dessus.
+    let filteredSurveys = surveys;
+    if (selectedAnswer !== "all") {
+      filteredSurveys = surveys.filter(
+        (survey) => survey.id_answer.toString() === selectedAnswer
+      );
+    }
+    return filteredSurveys.length;
+  })();
 
   return (
     <div style={{ display: "flex", minHeight: "100vh" }}>
@@ -370,6 +392,24 @@ export default function Home() {
               Par Âge
             </label>
           </div>
+        </div>
+
+        {/* Nombre total de votes */}
+        <div
+          style={{
+            marginTop: "20px",
+            padding: "10px",
+            backgroundColor: "#f9f9f9",
+            textAlign: "center",
+            borderRadius: "5px",
+          }}
+        >
+          <h3 style={{ fontSize: "16px", marginBottom: "5px" }}>
+            Total des votes
+          </h3>
+          <p style={{ fontSize: "20px", fontWeight: "bold" }}>
+            {totalVotes}
+          </p>
         </div>
       </aside>
 

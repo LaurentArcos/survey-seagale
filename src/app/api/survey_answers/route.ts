@@ -1,8 +1,14 @@
-// src/app/api/survey_answers/route.ts
 import { NextResponse } from 'next/server';
 import mysql from 'mysql2/promise';
+import { RowDataPacket } from 'mysql2';
 
-export async function GET(request: Request) {
+// Interface pour les réponses du sondage
+interface SurveyAnswer {
+  id_answer: number;
+  answer_text: string;
+}
+
+export async function GET() {
   try {
     const connection = await mysql.createConnection({
       host: process.env.DB_HOST,
@@ -11,11 +17,13 @@ export async function GET(request: Request) {
       database: process.env.DB_NAME,
     });
 
-    const [surveyAnswers] = await connection.execute('SELECT * FROM sg_survey_answers');
+    // Correction du typage avec RowDataPacket[]
+    const [surveyAnswers] = await connection.execute<RowDataPacket[]>('SELECT * FROM sg_survey_answers');
+
     await connection.end();
 
-    return NextResponse.json(surveyAnswers);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(surveyAnswers as SurveyAnswer[]);
+  } catch (error) {
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
 }

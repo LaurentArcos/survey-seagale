@@ -1,26 +1,30 @@
-// src/app/api/pays/route.ts
 import { NextResponse } from 'next/server';
 import mysql from 'mysql2/promise';
+import { RowDataPacket } from 'mysql2';
 
-export async function GET(request: Request) {
+// Interface pour les pays
+interface Country {
+  id_country: number;
+  iso_code: string;
+}
+
+export async function GET() {
   try {
-    // Établir la connexion à la base de données via les variables d'environnement
     const connection = await mysql.createConnection({
-      host: process.env.DB_HOST,      
-      user: process.env.DB_USER,      
-      password: process.env.DB_PASSWORD, 
-      database: process.env.DB_NAME,  
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
     });
 
-    // Exécuter la requête pour récupérer id_country et iso_code depuis la table ps_country
-    const [rows] = await connection.execute('SELECT id_country, iso_code FROM ps_country');
+    // Correction du typage avec RowDataPacket[]
+    const [rows] = await connection.execute<RowDataPacket[]>('SELECT id_country, iso_code FROM ps_country');
 
-    // Fermer la connexion
     await connection.end();
 
-    // Retourner les données au format JSON
-    return NextResponse.json(rows);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    // Caster les résultats en Country[]
+    return NextResponse.json(rows as Country[]);
+  } catch (error) {
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
 }

@@ -1,27 +1,40 @@
-// src/app/api/surveys/route.ts
 import { NextResponse } from 'next/server';
 import mysql from 'mysql2/promise';
+import { RowDataPacket } from 'mysql2';
 
-export async function GET(request: Request) {
+// Interface pour les sondages
+interface Survey {
+  id: number;
+  id_customer: number;
+  name: string;
+  id_answer: number;
+  autre_answer: string | null;
+  age: number;
+  ville: string;
+  postcode: string;
+  pays: string;
+  order_number: string;
+  sexe: string;
+  montant: string;
+  date_add: string;
+}
+
+export async function GET() {
   try {
-    // Établir la connexion à la base de données en utilisant les variables d'environnement
     const connection = await mysql.createConnection({
-      host: process.env.DB_HOST,         
-      user: process.env.DB_USER,         
-      password: process.env.DB_PASSWORD, 
-      database: process.env.DB_NAME,     
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
     });
 
-    // Exécuter la requête pour récupérer les données de la table sg_survey
-    const [rows] = await connection.execute('SELECT * FROM sg_survey');
+    // Correction du typage avec RowDataPacket[]
+    const [rows] = await connection.execute<RowDataPacket[]>('SELECT * FROM sg_survey');
 
-    // Fermer la connexion
     await connection.end();
 
-    // Retourner les données au format JSON
-    return NextResponse.json(rows);
-  } catch (error: any) {
-    // En cas d'erreur, retourner une réponse JSON avec le message d'erreur
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(rows as Survey[]);
+  } catch (error) {
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
 }

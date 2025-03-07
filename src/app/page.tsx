@@ -98,9 +98,6 @@ export default function Home() {
       );
     }
 
-    // Calcul du nombre total de votes (après filtrage)
-    const totalVotes = filteredSurveys.length;
-
     // Si aucun sondage ne correspond aux filtres, on indique qu'il n'y a aucune donnée
     if (filteredSurveys.length === 0) {
       setEmptyData(true);

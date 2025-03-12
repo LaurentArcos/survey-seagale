@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
-import { RowDataPacket } from 'mysql2';
+import { NextResponse } from "next/server";
+import mysql from "mysql2/promise";
+import { RowDataPacket } from "mysql2";
 
-// Interface pour les commandes
+// Définition de l'interface Order
 interface Order {
   id_order: number;
   date_add: string;
@@ -18,18 +18,18 @@ export async function GET() {
       database: process.env.DB_NAME,
     });
 
-    // Définition de la date seuil (4 mars 2025 à 19h00)
-    const dateSeuil = '2025-03-04 19:00:00';
-
-  
+    const dateSeuil = "2025-03-04 19:00:00"; // Date de référence
     const [rows] = await connection.execute<RowDataPacket[]>(
-      'SELECT id_order FROM ps_orders WHERE date_add >= ? AND current_state IN (2, 4, 5)',
+      "SELECT id_order FROM ps_orders WHERE date_add >= ? AND current_state IN (2, 4, 5)",
       [dateSeuil]
     );
 
     await connection.end();
 
-    return NextResponse.json({ orderCount: rows.length });
+    // Cast des résultats en Order[]
+    const orders: Order[] = rows as Order[];
+
+    return NextResponse.json({ orderCount: orders.length });
   } catch (error) {
     return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }

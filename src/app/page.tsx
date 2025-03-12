@@ -52,6 +52,7 @@ export default function Home() {
   const [selectedAnswer, setSelectedAnswer] = useState<string>("all");
   // "breakdown" peut être "none", "pays", "sexe", "departement" ou "age"
   const [breakdown, setBreakdown] = useState<string>("none");
+  const [orderCount, setOrderCount] = useState(0);
 
   // Récupération des sondages et des réponses
   useEffect(() => {
@@ -86,6 +87,19 @@ export default function Home() {
     fetchCountries();
   }, []);
 
+  useEffect(() => {
+    async function fetchOrders() {
+      try {
+        const res = await fetch("/api/orders");
+        const data = await res.json();
+        setOrderCount(data.orderCount); // Mise à jour de l'état
+      } catch (error) {
+        console.error("Erreur lors de la récupération des commandes :", error);
+      }
+    }
+    fetchOrders();
+  }, []);
+
   // Calcul dynamique du graphique en fonction des filtres
   useEffect(() => {
     if (!surveys.length) return;
@@ -97,6 +111,7 @@ export default function Home() {
         (survey) => survey.id_answer.toString() === selectedAnswer
       );
     }
+    
 
     // Si aucun sondage ne correspond aux filtres, on indique qu'il n'y a aucune donnée
     if (filteredSurveys.length === 0) {
@@ -291,6 +306,9 @@ export default function Home() {
     return filteredSurveys.length;
   })();
 
+  // 🔹 Calcul du pourcentage de votes par rapport aux commandes
+  const votePercentage = orderCount > 0 ? ((totalVotes / orderCount) * 100).toFixed(2) + "%" : "N/A";
+
   return (
     <div style={{ display: "flex", minHeight: "100vh" }}>
       {/* Menu latéral */}
@@ -391,7 +409,8 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Nombre total de votes */}
+
+        {/* Nombre total de commandes */}
         <div
           style={{
             marginTop: "20px",
@@ -402,13 +421,33 @@ export default function Home() {
           }}
         >
           <h3 style={{ fontSize: "16px", marginBottom: "5px" }}>
-            Total des votes
+            Nombre de commandes
           </h3>
           <p style={{ fontSize: "20px", fontWeight: "bold" }}>
-            {totalVotes}
+            {orderCount}
+          </p>
+        </div>
+
+      {/* 🔹 Total des votes avec pourcentage */}
+      <div
+          style={{
+            marginTop: "20px",
+            padding: "10px",
+            backgroundColor: "#f9f9f9",
+            textAlign: "center",
+            borderRadius: "5px",
+          }}
+        >
+          <h3 style={{ fontSize: "16px", marginBottom: "5px" }}>Total des votes</h3>
+          <p style={{ fontSize: "20px", fontWeight: "bold" }}>{totalVotes}</p>
+          <p style={{ fontSize: "14px", color: "#555" }}>
+            ({votePercentage} des commandes)
           </p>
         </div>
       </aside>
+
+
+      
 
       {/* Contenu principal */}
       <main style={{ flex: 1, padding: "20px", boxSizing: "border-box" }}>

@@ -19,10 +19,19 @@ export async function GET() {
       database: process.env.DB_NAME,
     });
 
-    const dateSeuil = "2025-04-24 11:40:00"; // Date de référence
+    // bornes de la plage
+    const dateMin = "2025-03-04 19:00:00";
+    const dateMax = "2025-04-24 11:40:00";
+
     const [rows] = await connection.execute<RowDataPacket[]>(
-      "SELECT DISTINCT id_customer FROM ps_orders WHERE date_add >= ? AND current_state IN (2, 4, 5)",
-      [dateSeuil]
+      `
+      SELECT DISTINCT id_customer
+      FROM ps_orders
+      WHERE date_add >= ?
+        AND date_add <= ?
+        AND current_state IN (2, 4, 5)
+      `,
+      [dateMin, dateMax]
     );
 
     await connection.end();

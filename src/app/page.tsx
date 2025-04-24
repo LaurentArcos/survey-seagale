@@ -42,6 +42,7 @@ interface Country {
 export default function Home() {
   // États pour les données brutes
   const [surveys, setSurveys] = useState<Survey[]>([]);
+  const [isV2, setIsV2] = useState<boolean>(false);
   const [surveyAnswers, setSurveyAnswers] = useState<SurveyAnswer[]>([]);
   const [countries, setCountries] = useState<Country[]>([]);
   // Données du graphique
@@ -53,52 +54,55 @@ export default function Home() {
   // "breakdown" peut être "none", "pays", "sexe", "departement" ou "age"
   const [breakdown, setBreakdown] = useState<string>("none");
   const [orderCount, setOrderCount] = useState(0);
-
+  const OTHER_ID = isV2 ? "9" : "7";
   // Récupération des sondages et des réponses
   useEffect(() => {
     async function fetchData() {
       try {
-        const [surveysRes, surveyAnswersRes] = await Promise.all([
-          fetch("/api/surveys"),
-          fetch("/api/survey_answers"),
+        const surveysUrl       = isV2 ? "/api/surveys2"       : "/api/surveys";
+        const answersUrl       = isV2 ? "/api/survey_answers2" : "/api/survey_answers";
+        const [svRes, ansRes] = await Promise.all([
+          fetch(surveysUrl),
+          fetch(answersUrl),
         ]);
-        const surveysData: Survey[] = await surveysRes.json();
-        const surveyAnswersData: SurveyAnswer[] = await surveyAnswersRes.json();
+        const surveysData     = (await svRes.json())     as Survey[];
+        const surveyAnswers   = (await ansRes.json())    as SurveyAnswer[];
         setSurveys(surveysData);
-        setSurveyAnswers(surveyAnswersData);
-      } catch (error) {
-        console.error("Erreur lors de la récupération des données :", error);
+        setSurveyAnswers(surveyAnswers);
+      } catch (err) {
+        console.error("Loading survey data:", err);
       }
     }
     fetchData();
-  }, []);
+  }, [isV2]);
 
   // Récupération des pays
   useEffect(() => {
     async function fetchCountries() {
       try {
-        const res = await fetch("/api/pays");
-        const data: Country[] = await res.json();
-        setCountries(data);
-      } catch (error) {
-        console.error("Erreur lors de la récupération des pays :", error);
+        const url = isV2 ? "/api/pays2" : "/api/pays";
+        const res = await fetch(url);
+        setCountries((await res.json()) as Country[]);
+      } catch (err) {
+        console.error("Loading countries:", err);
       }
     }
     fetchCountries();
-  }, []);
+  }, [isV2]);
 
   useEffect(() => {
     async function fetchOrders() {
       try {
-        const res = await fetch("/api/orders");
-        const data = await res.json();
-        setOrderCount(data.orderCount); // Mise à jour de l'état
-      } catch (error) {
-        console.error("Erreur lors de la récupération des commandes :", error);
+        const url = isV2 ? "/api/orders2" : "/api/orders";
+        const res = await fetch(url);
+        const json = await res.json();
+        setOrderCount(json.orderCount);
+      } catch (err) {
+        console.error("Loading orders:", err);
       }
     }
     fetchOrders();
-  }, []);
+  }, [isV2]);
 
   // Calcul dynamique du graphique en fonction des filtres
   useEffect(() => {
@@ -123,7 +127,7 @@ export default function Home() {
     }
 
     // Pour la réponse "Autre" (id_answer === "9"), on affichera une liste à part
-    if (selectedAnswer === "9") {
+    if (selectedAnswer === OTHER_ID) {
       setChartData(null);
       return;
     }
@@ -281,13 +285,8 @@ export default function Home() {
 
   // Liste des réponses "Autre"
   const otherResponses = surveys
-    .filter(
-      (survey) =>
-        survey.id_answer.toString() === "9" &&
-        survey.autre_answer &&
-        survey.autre_answer.trim() !== ""
-    )
-    .map((survey) => survey.autre_answer as string);
+  .filter(s => s.id_answer.toString() === OTHER_ID && s.autre_answer?.trim())
+  .map(s => s.autre_answer as string);
 
   // 🔹 Calcul du total des votes (pour l'affichage à gauche)
   const totalVotes = (() => {
@@ -320,6 +319,12 @@ export default function Home() {
           boxSizing: "border-box",
         }}
       >
+        <button
+  className="toggle-btn"
+  onClick={() => setIsV2(v => !v)}
+>
+  Afficher le sondage {isV2 ? "2" : "1"}
+</button>
         <h2>Filtres</h2>
         <div style={{ marginBottom: "20px" }}>
           <label style={{ display: "block", marginBottom: "5px" }}>
@@ -451,6 +456,11 @@ export default function Home() {
 
       {/* Contenu principal */}
       <main style={{ flex: 1, padding: "20px", boxSizing: "border-box" }}>
+      <h2 style={{ textAlign: "center", marginBottom: "1rem", fontSize: "1.25rem" }}>
+        {isV2
+          ? "Comment nous avez-vous connus ?"
+          : "Qu'est-ce qui vous a convaincu d'acheter chez Seagale ?"}
+      </h2>
         <h1 style={{ textAlign: "center", marginBottom: "20px" }}>
           Statistiques
         </h1>

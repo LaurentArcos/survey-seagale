@@ -39,6 +39,11 @@ interface Country {
   iso_code: string;
 }
 
+const getApiPath = (base: string) => {
+  if (selectedSurvey === 1) return `/api/${base}1`;
+  if (selectedSurvey === 2) return `/api/${base}2`;
+  return `/api/${base}`;
+};
 export default function Home() {
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [surveyAnswers, setSurveyAnswers] = useState<SurveyAnswer[]>([]);
@@ -52,11 +57,6 @@ export default function Home() {
 
   const OTHER_ID = selectedSurvey === 1 ? "9" : selectedSurvey === 2 ? "7" : "0";
 
-  const getApiPath = (base: string) => {
-    if (selectedSurvey === 1) return `/api/${base}1`;
-    if (selectedSurvey === 2) return `/api/${base}2`;
-    return `/api/${base}`;
-  };
 
   useEffect(() => {
     async function fetchData() {
@@ -102,7 +102,7 @@ export default function Home() {
   useEffect(() => {
     if (!surveys.length) return;
 
-    let filteredSurveys = selectedAnswer !== "all"
+    const filteredSurveys = selectedAnswer !== "all"
       ? surveys.filter(s => s.id_answer.toString() === selectedAnswer)
       : surveys;
 
@@ -205,7 +205,7 @@ export default function Home() {
         },
       ],
     });
-  }, [surveys, surveyAnswers, countries, selectedAnswer, breakdown]);
+  }, [surveys, surveyAnswers, countries, selectedAnswer, breakdown, OTHER_ID]);
 
   const otherResponses = surveys
     .filter(s => s.id_answer.toString() === OTHER_ID && s.autre_answer?.trim())
@@ -226,8 +226,9 @@ export default function Home() {
         footerFont: { size: 14 },
       },
       datalabels: {
-        formatter: (value: number, ctx: any) => {
-          const sum = ctx.chart.data.datasets[0].data.reduce((a: number, b: number) => a + b, 0);
+        formatter: (value: number, context: { chart: { data: { datasets: { data: number[] }[] } } }) => {
+          const dataArr = context.chart.data.datasets[0].data;
+          const sum = dataArr.reduce((a, b) => a + b, 0);
           return ((value * 100) / sum).toFixed(2) + "%";
         },
         color: "#fff",
@@ -292,7 +293,7 @@ export default function Home() {
         {selectedAnswer === OTHER_ID && OTHER_ID !== "0" ? (
           <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
             <h2 style={{ textAlign: "center", marginBottom: "20px" }}>
-              Réponses \"Autre\"
+              Réponses &quot;Autre&quot;
             </h2>
             {otherResponses.length ? (
               <ul style={{ listStyle: "none", padding: 0 }}>
@@ -300,7 +301,7 @@ export default function Home() {
                   <li key={i} style={{ background: "#f5f5f5", marginBottom: "10px", padding: "10px", borderRadius: "5px" }}>{resp}</li>
                 ))}
               </ul>
-            ) : <p style={{ textAlign: "center" }}>Aucune réponse \"Autre\"</p>}
+            ) : <p style={{ textAlign: "center" }}>Aucune réponse &quot;Autre&quot;</p>}
           </div>
         ) : emptyData ? (
           <p style={{ textAlign: "center" }}>Aucune réponse</p>

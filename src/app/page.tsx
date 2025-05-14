@@ -10,6 +10,8 @@ import {
   ChartData,
 } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
+import { Context } from 'chartjs-plugin-datalabels';
+
 
 ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels);
 
@@ -220,18 +222,18 @@ export default function Home() {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { position: "top", labels: { font: { size: 20 } } },
+      legend: { position: "top" as const, labels: { font: { size: 20 } } },
       tooltip: {
         titleFont: { size: 18 },
         bodyFont: { size: 16 },
         footerFont: { size: 14 },
       },
       datalabels: {
-        formatter: (value: number, context: { chart: { data: { datasets: { data: number[] }[] } } }) => {
-          const dataArr = context.chart.data.datasets[0].data;
-          const sum = dataArr.reduce((a, b) => a + b, 0);
-          return ((value * 100) / sum).toFixed(2) + "%";
-        },
+formatter: (value: number, context: Context) => {
+  const dataArr = context.chart.data.datasets[0].data as number[];
+  const sum = dataArr.reduce((a, b) => a + b, 0);
+  return ((value * 100) / sum).toFixed(2) + "%";
+},
         color: "#fff",
         font: { weight: "bold" as const, size: 20 },
       },

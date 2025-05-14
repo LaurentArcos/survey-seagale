@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Pie } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -39,11 +39,7 @@ interface Country {
   iso_code: string;
 }
 
-const getApiPath = (base: string) => {
-  if (selectedSurvey === 1) return `/api/${base}1`;
-  if (selectedSurvey === 2) return `/api/${base}2`;
-  return `/api/${base}`;
-};
+
 export default function Home() {
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [surveyAnswers, setSurveyAnswers] = useState<SurveyAnswer[]>([]);
@@ -57,6 +53,11 @@ export default function Home() {
 
   const OTHER_ID = selectedSurvey === 1 ? "9" : selectedSurvey === 2 ? "7" : "0";
 
+  const getApiPath = useCallback((base: string) => {
+    if (selectedSurvey === 1) return `/api/${base}1`;
+    if (selectedSurvey === 2) return `/api/${base}2`;
+    return `/api/${base}`;
+  }, [selectedSurvey]);
 
   useEffect(() => {
     async function fetchData() {
@@ -72,7 +73,7 @@ export default function Home() {
       }
     }
     fetchData();
-  }, [selectedSurvey]);
+}, [getApiPath]);
 
   useEffect(() => {
     async function fetchCountries() {
@@ -97,7 +98,7 @@ export default function Home() {
       }
     }
     fetchOrders();
-  }, [selectedSurvey]);
+}, [getApiPath]);
 
   useEffect(() => {
     if (!surveys.length) return;

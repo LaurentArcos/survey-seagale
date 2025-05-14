@@ -245,9 +245,9 @@ formatter: (value: number, context: Context) => {
       <aside style={{ width: "250px", padding: "20px", borderRight: "1px solid #ccc" }}>
         <label style={{ display: "block", marginBottom: "10px" }}>Choisir un sondage :</label>
         <select value={selectedSurvey} onChange={(e) => setSelectedSurvey(Number(e.target.value))} style={{ width: "100%", padding: "5px", marginBottom: "20px" }}>
-          <option value={1}>Sondage 1</option>
-          <option value={2}>Sondage 2</option>
-          <option value={3}>Sondage 3</option>
+          <option value={1}>Comment nous avez-vous connus ?</option>
+          <option value={2}>Qu&lsquo;est-ce qui vous a convaincu d'acheter chez Seagale ?</option>
+          <option value={3}>Quel est votre réseau social favori ?</option>
         </select>
 
         <h2>Filtres</h2>

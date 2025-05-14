@@ -20,8 +20,8 @@ export async function GET() {
     });
 
     // bornes de la plage
-    const dateMin = "2025-03-04 19:00:00";
-    const dateMax = "2025-04-24 11:40:00";
+    const dateMin = "2025-04-24 11:40:00";
+    const dateMax = "2025-05-14 10:00:00";
 
     const [rows] = await connection.execute<RowDataPacket[]>(
       `

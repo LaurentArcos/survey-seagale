@@ -2,10 +2,10 @@ import { NextResponse } from 'next/server';
 import mysql from 'mysql2/promise';
 import { RowDataPacket } from 'mysql2';
 
-// Interface pour les pays
-interface Country {
-  id_country: number;
-  iso_code: string;
+// Interface pour les réponses du sondage
+interface SurveyAnswer {
+  id_answer: number;
+  answer_text: string;
 }
 
 export async function GET() {
@@ -18,12 +18,11 @@ export async function GET() {
     });
 
     // Correction du typage avec RowDataPacket[]
-    const [rows] = await connection.execute<RowDataPacket[]>('SELECT id_country, iso_code FROM ps_country');
+    const [surveyAnswers] = await connection.execute<RowDataPacket[]>('SELECT * FROM sg_survey_answers_1');
 
     await connection.end();
 
-    // Caster les résultats en Country[]
-    return NextResponse.json(rows as Country[]);
+    return NextResponse.json(surveyAnswers as SurveyAnswer[]);
   } catch (error) {
     return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }

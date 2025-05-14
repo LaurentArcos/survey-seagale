@@ -129,16 +129,16 @@ export default function Home() {
       }, {} as Record<string, number>);
       labelSource = "id_answer";
     } else if (breakdown === "pays") {
-      counts = filteredSurveys.reduce((acc, s) => {
+      counts = filteredSurveys.reduce((acc: Record<string, number>, s) => {
         acc[s.pays] = (acc[s.pays] || 0) + 1;
         return acc;
-      }, {});
+      }, {} as Record<string, number>);
       labelSource = "pays";
     } else if (breakdown === "sexe") {
-      counts = filteredSurveys.reduce((acc, s) => {
+      counts = filteredSurveys.reduce((acc: Record<string, number>, s) => {
         acc[s.sexe] = (acc[s.sexe] || 0) + 1;
         return acc;
-      }, {});
+      }, {} as Record<string, number>);
       labelSource = "sexe";
     } else if (breakdown === "departement") {
       const french = filteredSurveys.filter(s => s.pays === "8");
@@ -147,17 +147,18 @@ export default function Home() {
         setChartData(null);
         return;
       }
-      counts = french.reduce((acc, s) => {
+      counts = french.reduce((acc: Record<string, number>, s) => {
         const dept = s.postcode.slice(0, 2);
         acc[dept] = (acc[dept] || 0) + 1;
         return acc;
-      }, {});
+      }, {} as Record<string, number>);
       labelSource = "departement";
     } else if (breakdown === "age") {
-      counts = filteredSurveys.reduce((acc, s) => {
-        acc[s.age.toString()] = (acc[s.age.toString()] || 0) + 1;
+      counts = filteredSurveys.reduce((acc: Record<string, number>, s) => {
+        const key = s.age.toString();
+        acc[key] = (acc[key] || 0) + 1;
         return acc;
-      }, {});
+      }, {} as Record<string, number>);
       labelSource = "age";
     }
 

@@ -50,7 +50,7 @@ export default function Home() {
   const [chartData, setChartData] = useState<ChartData<"pie", number[], unknown> | null>(null);
   const [emptyData, setEmptyData] = useState<boolean>(false);
   const [selectedAnswer, setSelectedAnswer] = useState<string>("all");
-  const [breakdown, setBreakdown] = useState<string>("none");
+  const [breakdown, setBreakdown] = useState<string>("Tout");
   const [orderCount, setOrderCount] = useState(0);
 
   const OTHER_ID = selectedSurvey === 1 ? "9" : selectedSurvey === 2 ? "7" : "0";
@@ -125,25 +125,25 @@ export default function Home() {
     let counts: Record<string, number> = {};
     let labelSource = "";
 
-    if (breakdown === "none") {
+    if (breakdown === "Tout") {
       counts = filteredSurveys.reduce((acc, s) => {
         acc[s.id_answer.toString()] = (acc[s.id_answer.toString()] || 0) + 1;
         return acc;
       }, {} as Record<string, number>);
       labelSource = "id_answer";
-    } else if (breakdown === "pays") {
+    } else if (breakdown === "Par pays") {
       counts = filteredSurveys.reduce((acc: Record<string, number>, s) => {
         acc[s.pays] = (acc[s.pays] || 0) + 1;
         return acc;
       }, {} as Record<string, number>);
-      labelSource = "pays";
-    } else if (breakdown === "sexe") {
+      labelSource = "Par pays";
+    } else if (breakdown === "Par sexe") {
       counts = filteredSurveys.reduce((acc: Record<string, number>, s) => {
         acc[s.sexe] = (acc[s.sexe] || 0) + 1;
         return acc;
       }, {} as Record<string, number>);
-      labelSource = "sexe";
-    } else if (breakdown === "departement") {
+      labelSource = "Par sexe";
+    } else if (breakdown === "Par departement") {
       const french = filteredSurveys.filter(s => s.pays === "8");
       if (!french.length) {
         setEmptyData(true);
@@ -155,14 +155,14 @@ export default function Home() {
         acc[dept] = (acc[dept] || 0) + 1;
         return acc;
       }, {} as Record<string, number>);
-      labelSource = "departement";
-    } else if (breakdown === "age") {
+      labelSource = "Par departement";
+    } else if (breakdown === "Par age") {
       counts = filteredSurveys.reduce((acc: Record<string, number>, s) => {
         const key = s.age.toString();
         acc[key] = (acc[key] || 0) + 1;
         return acc;
       }, {} as Record<string, number>);
-      labelSource = "age";
+      labelSource = "Par age";
     }
 
     if (!Object.keys(counts).length) {
@@ -265,10 +265,10 @@ formatter: (value: number, context: Context) => {
 
         <div>
           <label>Répartition :</label>
-          {["none", "pays", "sexe", "departement", "age"].map(key => (
+          {["Tout", "Par pays", "Par sexe", "Par departement", "Par age"].map(key => (
             <div key={key}>
               <input type="radio" id={key} name="breakdown" value={key} checked={breakdown === key} onChange={(e) => setBreakdown(e.target.value)} />
-              <label htmlFor={key} style={{ marginLeft: "5px" }}>Par {key}</label>
+              <label htmlFor={key} style={{ marginLeft: "5px" }}>{key}</label>
             </div>
           ))}
         </div>
@@ -301,7 +301,7 @@ formatter: (value: number, context: Context) => {
               Réponses &quot;Autre&quot;
             </h2>
             {otherResponses.length ? (
-              <ul style={{ listStyle: "none", padding: 0 }}>
+              <ul style={{ listStyle: "Tout", padding: 0 }}>
                 {otherResponses.map((resp, i) => (
                   <li key={i} style={{ background: "#f5f5f5", marginBottom: "10px", padding: "10px", borderRadius: "5px" }}>{resp}</li>
                 ))}

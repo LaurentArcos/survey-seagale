@@ -246,7 +246,9 @@ formatter: (value: number, context: Context) => {
         <label style={{ display: "block", marginBottom: "10px" }}>Choisir un sondage :</label>
         <select value={selectedSurvey} onChange={(e) => setSelectedSurvey(Number(e.target.value))} style={{ width: "100%", padding: "5px", marginBottom: "20px" }}>
           <option value={1}>Comment nous avez-vous connus ?</option>
-          <option value={2}>Qu&lsquo;est-ce qui vous a convaincu d'acheter chez Seagale ?</option>
+          <option value={2}>
+  Qu&rsquo;est-ce qui vous a convaincu d&rsquo;acheter chez Seagale ?
+</option>
           <option value={3}>Quel est votre réseau social favori ?</option>
         </select>
 
